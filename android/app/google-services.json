@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "652824788079",
+    "project_id": "yspcapp",
+    "storage_bucket": "yspcapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652824788079:android:605157548c51e26af8a19a",
+        "android_client_info": {
+          "package_name": "com.example.yspc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "652824788079-vcftbhjr1nsupvbk1uteoa7lcer4v8st.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.yspc",
+            "certificate_hash": "33a6adc84a38c695b8f57c7eef808545bc1fc7cc"
+          }
+        },
+        {
+          "client_id": "652824788079-t8jcf19r17iq31q98co5hpit3pkn0pm1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2wRhqYp0l4IhAWGr-9YMzC0nXMZv5jFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "652824788079-t8jcf19r17iq31q98co5hpit3pkn0pm1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
