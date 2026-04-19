@@ -53,10 +53,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD2wRhqYp0l4IhAWGr-9YMzC0nXMZv5jFM',
-    appId: '1:652824788079:android:605157548c51e26af8a19a',
-    messagingSenderId: '652824788079',
-    projectId: 'yspcapp',
-    storageBucket: 'yspcapp.firebasestorage.app',
+    apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
+    appId: '1:724306212346:android:eac182d19c4b87ca95a043',
+    messagingSenderId: '724306212346',
+    projectId: 'your-pocket-soul-coach',
+    storageBucket: 'your-pocket-soul-coach.firebasestorage.app',
   );
 }

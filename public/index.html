@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deletion Request - YSPC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            border-radius: 12px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .info-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 16px;
+            margin-bottom: 32px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: var(--danger);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .info-box p {
+            margin-bottom: 0;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <div class="logo-icon"></div>
+        YSPC
+    </div>
+    <h1>Account Deletion</h1>
+    <p>We're sorry to see you go. Please provide your email associated with the account to initiate the deletion process.</p>
+
+    <div class="info-box">
+        <h3>Warning</h3>
+        <p>This action is permanent. All your data, including chat history and settings, will be permanently removed after verification.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Account Email Address</label>
+        <input type="email" id="email" placeholder="name@example.com" required>
+    </div>
+
+    <a href="#" id="submitBtn" class="btn">
+        Request Deletion
+    </a>
+
+    <div class="footer">
+        Changed your mind? <a href="https://yspcapp.web.app">Return to Home</a>
+    </div>
+</div>
+
+<script>
+    const emailInput = document.getElementById('email');
+    const submitBtn = document.getElementById('submitBtn');
+    const SUPPORT_EMAIL = 'support@yspc.app'; // <--- USER: CHANGE THIS TO YOUR ACTUAL SUPPORT EMAIL
+
+    submitBtn.addEventListener('click', (e) => {
+        const email = emailInput.value.trim();
+        if (!email || !email.includes('@')) {
+            alert('Please enter a valid email address.');
+            e.preventDefault();
+            return;
+        }
+
+        const subject = encodeURIComponent('Account Deletion Request - YSPC');
+        const body = encodeURIComponent(`Hi Support Team,\n\nI would like to request the permanent deletion of my account and all associated data.\n\nAccount Email: ${email}\n\nPlease confirm once the process is complete.\n\nThank you.`);
+
+        submitBtn.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+    });
+</script>
+</body>
+</html>
