@@ -8,7 +8,7 @@
 PRODUCT_NAME = yspc
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.soulpocketcoach.app.yspc
+PRODUCT_BUNDLE_IDENTIFIER = com.soulpocketcoach.app.toheedapps
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.soulpocketcoach.app. All rights reserved.
