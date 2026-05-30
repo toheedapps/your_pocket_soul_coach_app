@@ -4,7 +4,7 @@ import 'package:yspc/services/firestore_service.dart'; // NEW: Import for Firest
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   // Email + Password Sign Up
 // 1. Email + Password Sign Up
@@ -48,23 +48,37 @@ class FirebaseAuthService {
 
   // Google Sign-In
   Future<User?> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return null;
+    try {
+      await _googleSignIn.initialize();
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      final GoogleSignInAccount googleUser =
+      await _googleSignIn.authenticate();
 
-    final userCredential = await _auth.signInWithCredential(credential);
-    final user = userCredential.user;
-    if (user != null) {
-      await _ensureDisplayNameExists(user, user.email ?? '');
+      final GoogleSignInAuthentication googleAuth =
+          googleUser.authentication;
+
+      final OAuthCredential credential =
+      GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(credential);
+
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        await _ensureDisplayNameExists(
+          user,
+          user.email ?? '',
+        );
+      }
+
+      return user;
+    } catch (e) {
+      throw Exception('Google Sign-In failed: $e');
     }
-    return user;
   }
-
   Future<void> _ensureDisplayNameExists(User user, String email) async {
     if (user.displayName != null && user.displayName!.trim().isNotEmpty) {
       // Name already exists → just make sure Firestore has it
@@ -97,16 +111,23 @@ class FirebaseAuthService {
   // For Google re-auth (if user signed in with Google)
   Future<void> reauthenticateWithGoogle() async {
     final user = _auth.currentUser;
-    if (user == null) throw Exception('No user logged in');
 
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) throw Exception('Google re-auth canceled');
+    if (user == null) {
+      throw Exception('No user logged in');
+    }
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    await _googleSignIn.initialize();
+
+    final GoogleSignInAccount googleUser =
+    await _googleSignIn.authenticate();
+
+    final GoogleSignInAuthentication googleAuth =
+        googleUser.authentication;
+
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
+
     await user.reauthenticateWithCredential(credential);
   }
 
