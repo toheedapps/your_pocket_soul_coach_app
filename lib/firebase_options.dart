@@ -4,59 +4,54 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
+        'DefaultFirebaseOptions have not been configured for web.',
       );
     }
+
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'macOS not configured.',
         );
       case TargetPlatform.windows:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'Windows not configured.',
         );
       case TargetPlatform.linux:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'Linux not configured.',
         );
       default:
         throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
+          'Unsupported platform.',
         );
     }
   }
 
+  // ✅ ANDROID (your existing config)
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
     appId: '1:724306212346:android:eac182d19c4b87ca95a043',
     messagingSenderId: '724306212346',
     projectId: 'your-pocket-soul-coach',
     storageBucket: 'your-pocket-soul-coach.firebasestorage.app',
+  );
+
+  // ❗ iOS (YOU MUST REPLACE THESE VALUES)
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
+    appId: '1:724306212346:android:eac182d19c4b87ca95a043',
+    messagingSenderId: '724306212346',
+    projectId: 'your-pocket-soul-coach',
+    storageBucket: 'your-pocket-soul-coach.firebasestorage.app',
+    iosBundleId: "com.soulpocketcoach.app.toheedapps",
   );
 }

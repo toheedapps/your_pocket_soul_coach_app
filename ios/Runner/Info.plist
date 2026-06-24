@@ -27,6 +27,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We use microphone for voice-based AI coaching.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
