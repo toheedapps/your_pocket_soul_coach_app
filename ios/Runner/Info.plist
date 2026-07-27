@@ -27,16 +27,20 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-	<!-- Firebase and Permissions Moved Here -->
+	<!-- Firebase and Permissions -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<true/>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We use microphone for voice-based AI coaching.</string>
+	<string>We use the microphone for voice-based AI coaching sessions.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We use the camera to let you upload a profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We access your photo library to let you upload a profile photo.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<!-- End of Moved Section -->
+	<!-- End Permissions -->
 
 	<key>UIApplicationSceneManifest</key>
 	<dict>
