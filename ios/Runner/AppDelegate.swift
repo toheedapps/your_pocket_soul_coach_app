@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import Firebase
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -10,8 +10,13 @@ import Firebase
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
-    // Initialize Firebase
-    FirebaseApp.configure()
+    // NOTE: Firebase is initialized by Flutter's Firebase.initializeApp() in main.dart.
+    // Do NOT call FirebaseApp.configure() here — it causes a double-init crash (SIGABRT).
+
+    // Required for flutter_local_notifications on iOS
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
