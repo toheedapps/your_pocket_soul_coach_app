@@ -29,7 +29,7 @@
 
 	<!-- Firebase and Permissions -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We use the microphone for voice-based AI coaching sessions.</string>
 	<key>NSCameraUsageDescription</key>
