@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import UserNotifications
+import Firebase
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,6 +10,8 @@ import UserNotifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+
+    FirebaseApp.configure()
 
     // Register all flutter plugins natively
     GeneratedPluginRegistrant.register(with: self)
