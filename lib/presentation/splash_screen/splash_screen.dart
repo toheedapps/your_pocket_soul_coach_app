@@ -62,29 +62,38 @@ class _SplashScreenState extends State<SplashScreen>
       // 2. If auth → check onboarding
       if (_isAuthenticated) {
         setState(() => _loadingMessage = 'Loading your profile...');
-        final profile = await _firestore.getUserProfile(_uid!);
-        _isOnboarded = profile?['is_onboarded'] ?? false;
+        try {
+          // Use a timeout so we don't hang forever on bad networks
+          final profile = await _firestore.getUserProfile(_uid!).timeout(const Duration(seconds: 5));
+          _isOnboarded = profile?['is_onboarded'] ?? false;
+        } catch (e) {
+          debugPrint('⚠️ Firestore fetch failed on launch (offline?): $e');
+          // If we can't reach Firestore, assume onboarded to let user into the app
+          // The home screen can handle offline states gracefully
+          _isOnboarded = true; 
+        }
         await Future.delayed(const Duration(milliseconds: 600));
       }
 
-      // 3. Ping OpenAI (fast health check)
+      // 3. Ping OpenAI (non-fatal health check — errors shown in chat, not splash)
       setState(() => _loadingMessage = 'Connecting to your Soul Coach...');
-      final connected = await _openAI.testConnection();
-      if (!connected) throw Exception('Soul Coach unreachable');
+      try {
+        await _openAI.testConnection().timeout(const Duration(seconds: 3));
+      } catch (e) {
+        debugPrint('⚠️ OpenAI ping failed on launch: $e');
+      }
       await Future.delayed(const Duration(milliseconds: 600));
 
-      // 4. Navigate
-      if (!mounted) return;
-      _navigateToNextScreen();
     } catch (e) {
-      debugPrint('Splash init error: $e');
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _showRetry = true;
-        _loadingMessage = 'Connection failed. Tap to retry.';
-      });
+      debugPrint('⚠️ Splash init critical error: $e');
+      // If something critically failed (like Firebase not initialized), 
+      // just push them to the auth screen rather than showing a dead-end retry screen.
+      _isAuthenticated = false;
     }
+
+    // 4. Navigate (Always navigate, never block the launch)
+    if (!mounted) return;
+    _navigateToNextScreen();
   }
 
   void _navigateToNextScreen() {
