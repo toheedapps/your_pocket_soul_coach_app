@@ -11,7 +11,7 @@ class FirestoreService {
   final OpenAIClient _openAI = OpenAIClient();
 
   // ---------- USER PROFILE ----------
-  Future<void> createUserProfile({
+  Future<bool> createUserProfile({
     required String uid,
     required String email,
     String? name,
@@ -28,7 +28,9 @@ class FirestoreService {
         'moodStreak': 0,
         'created_at': FieldValue.serverTimestamp(),
       });
+      return true; // Profile created
     }
+    return false; // Already existed
   }
 
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
@@ -37,17 +39,17 @@ class FirestoreService {
   }
 
   Future<void> updateOnboardingStatus(String uid, bool status) async {
-    await _db.collection('users').doc(uid).update({
+    await _db.collection('users').doc(uid).set({
       'is_onboarded': status,
       'updated_at': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   Future<void> updateUserField(String uid, String field, dynamic value) async {
-    await _db.collection('users').doc(uid).update({
+    await _db.collection('users').doc(uid).set({
       field: value,
       'updated_at': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   // Future<void> saveSelectedCoach(String uid, String coachId) async {
@@ -342,13 +344,13 @@ Return only the affirmation text.
   Future<void> startFreeTrial(String uid) async {
     final now = Timestamp.now();
     final endDate = Timestamp.fromDate(now.toDate().add(const Duration(days: 7)));
-    await _db.collection('users').doc(uid).update({
+    await _db.collection('users').doc(uid).set({
       'subscriptionType': 'free_trial',
       'subscriptionStatus': 'active',
       'trialStartDate': now,
       'trialEndDate': endDate,
       'paymentMethod': 'none',
-    });
+    }, SetOptions(merge: true));
   }
 
   Future<bool> isSubscribed(String uid) async {
