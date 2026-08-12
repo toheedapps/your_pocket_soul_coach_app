@@ -29,6 +29,17 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.724306212346-bjh7l8dhc91nq0c1p2t2c91sqip5i8h2</string>
+			</array>
+		</dict>
+	</array>
 	<!-- Firebase and Permissions -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
