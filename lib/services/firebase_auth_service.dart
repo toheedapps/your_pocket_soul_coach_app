@@ -4,7 +4,7 @@ import 'package:yspc/services/firestore_service.dart'; // NEW: Import for Firest
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Email + Password Sign Up
 // 1. Email + Password Sign Up
@@ -49,13 +49,14 @@ class FirebaseAuthService {
   // Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
-      await _googleSignIn.initialize();
-
-      final GoogleSignInAccount googleUser =
-      await _googleSignIn.authenticate();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        throw Exception('Google Sign-In aborted by user');
+      }
 
       final GoogleSignInAuthentication googleAuth =
-          googleUser.authentication;
+          await googleUser.authentication;
 
       final OAuthCredential credential =
       GoogleAuthProvider.credential(
@@ -116,13 +117,14 @@ class FirebaseAuthService {
       throw Exception('No user logged in');
     }
 
-    await _googleSignIn.initialize();
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-    final GoogleSignInAccount googleUser =
-    await _googleSignIn.authenticate();
+    if (googleUser == null) {
+      throw Exception('Google Sign-In aborted by user');
+    }
 
     final GoogleSignInAuthentication googleAuth =
-        googleUser.authentication;
+        await googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
@@ -148,7 +150,11 @@ class FirebaseAuthService {
 
   // Sign Out
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      print('Google sign out error (expected if not signed in with Google): $e');
+    }
     await _auth.signOut();
   }
   // Current User
