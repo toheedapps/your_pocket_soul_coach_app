@@ -4,7 +4,7 @@ import 'package:yspc/services/firestore_service.dart'; // NEW: Import for Firest
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   // Email + Password Sign Up
 // 1. Email + Password Sign Up
@@ -49,14 +49,15 @@ class FirebaseAuthService {
   // Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
-      if (googleUser == null) {
-        throw Exception('Google Sign-In aborted by user');
-      }
+      await _googleSignIn.initialize(
+        serverClientId: '724306212346-m1q25e5pnegcetuogdnvi2tl1i39poj0.apps.googleusercontent.com',
+      );
+
+      final GoogleSignInAccount googleUser =
+      await _googleSignIn.authenticate();
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+          googleUser.authentication;
 
       final OAuthCredential credential =
       GoogleAuthProvider.credential(
@@ -117,14 +118,15 @@ class FirebaseAuthService {
       throw Exception('No user logged in');
     }
 
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    await _googleSignIn.initialize(
+      serverClientId: '724306212346-m1q25e5pnegcetuogdnvi2tl1i39poj0.apps.googleusercontent.com',
+    );
 
-    if (googleUser == null) {
-      throw Exception('Google Sign-In aborted by user');
-    }
+    final GoogleSignInAccount googleUser =
+    await _googleSignIn.authenticate();
 
     final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+        googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
@@ -150,11 +152,7 @@ class FirebaseAuthService {
 
   // Sign Out
   Future<void> signOut() async {
-    try {
-      await _googleSignIn.signOut();
-    } catch (e) {
-      print('Google sign out error (expected if not signed in with Google): $e');
-    }
+    await _googleSignIn.signOut();
     await _auth.signOut();
   }
   // Current User
