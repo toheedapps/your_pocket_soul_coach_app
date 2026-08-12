@@ -70,6 +70,17 @@ class FirebaseAuthService {
       final User? user = userCredential.user;
 
       if (user != null) {
+        // Guarantee Firestore profile exists for Google Sign-In users
+        bool isNewUser = await FirestoreService().createUserProfile(
+          uid: user.uid,
+          email: user.email ?? '',
+          name: user.displayName,
+        );
+
+        if (isNewUser) {
+          await FirestoreService().startFreeTrial(user.uid);
+        }
+
         await _ensureDisplayNameExists(
           user,
           user.email ?? '',
