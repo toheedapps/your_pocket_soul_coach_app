@@ -36,6 +36,11 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
       final rememberMe = prefs.getBool('remember_me') ?? false;
@@ -75,7 +80,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
 
   void _handleTabChange(int index) {
     HapticFeedback.lightImpact();
-    _tabController.animateTo(index);
+    setState(() {
+      _tabController.index = index;
+    });
   }
   Future<void> _postSignInRedirect(User user) async {
     final creation = user.metadata.creationTime;
