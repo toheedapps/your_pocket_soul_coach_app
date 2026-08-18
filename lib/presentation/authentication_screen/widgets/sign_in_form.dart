@@ -7,7 +7,7 @@ import 'input_decoration.dart';
 
 class SignInForm extends StatefulWidget {
   final Function(String email, String password, bool rememberMe)? onSignIn;
-  final VoidCallback? onForgotPassword;
+  final Function(String email)? onForgotPassword;
   final bool isLoading;
 
   const SignInForm({
@@ -143,6 +143,7 @@ class _SignInFormState extends State<SignInForm> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateEmail,
             decoration: authFieldDecoration(
               label: 'Email Address',
@@ -164,6 +165,7 @@ class _SignInFormState extends State<SignInForm> {
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
             textInputAction: TextInputAction.done,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validatePassword,
             onFieldSubmitted: (_) => _handleSignIn(),
             decoration: authFieldDecoration(
@@ -213,12 +215,15 @@ class _SignInFormState extends State<SignInForm> {
                 ],
               ),
               TextButton(
-                onPressed: widget.onForgotPassword,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  widget.onForgotPassword?.call(_emailController.text.trim());
+                },
                 child: Text(
-                  'I need help signing in',  // Updated text
+                  'Forgot Password?',
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w600,
                     color: AppTheme.lightTheme.colorScheme.primary,
                   ),
                 ),

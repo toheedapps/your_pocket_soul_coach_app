@@ -7,9 +7,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web.',
-      );
+      return web;
     }
 
     switch (defaultTargetPlatform) {
@@ -18,25 +16,27 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'macOS not configured.',
-        );
+        throw UnsupportedError('macOS not configured.');
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'Windows not configured.',
-        );
+        throw UnsupportedError('Windows not configured.');
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'Linux not configured.',
-        );
+        throw UnsupportedError('Linux not configured.');
       default:
-        throw UnsupportedError(
-          'Unsupported platform.',
-        );
+        throw UnsupportedError('Unsupported platform.');
     }
   }
 
-  // ✅ ANDROID (your existing config)
+  // ✅ WEB
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
+    appId: '1:724306212346:web:eac182d19c4b87ca95a043',
+    messagingSenderId: '724306212346',
+    projectId: 'your-pocket-soul-coach',
+    storageBucket: 'your-pocket-soul-coach.firebasestorage.app',
+    authDomain: 'your-pocket-soul-coach.firebaseapp.com',
+  );
+
+  // ✅ ANDROID
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
     appId: '1:724306212346:android:eac182d19c4b87ca95a043',
@@ -45,10 +45,10 @@ class DefaultFirebaseOptions {
     storageBucket: 'your-pocket-soul-coach.firebasestorage.app',
   );
 
-  // ❗ iOS (YOU MUST REPLACE THESE VALUES)
+  // ✅ iOS
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAbQYQ-NFApEMp4RwWy4RWeG0-BnSXsGNs',
-    appId: '1:724306212346:android:eac182d19c4b87ca95a043',
+    apiKey: 'AIzaSyBYP522nIsvVb2tId1zIvMafkcKI3KXEgA',
+    appId: '1:724306212346:ios:e28a91f6eb70a89795a043',
     messagingSenderId: '724306212346',
     projectId: 'your-pocket-soul-coach',
     storageBucket: 'your-pocket-soul-coach.firebasestorage.app',

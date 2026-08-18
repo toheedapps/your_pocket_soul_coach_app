@@ -21,11 +21,11 @@ class OpenAIClient {
     try {
       // Ensure API key exists
       final apiKey = EnvLoader.get('OPENAI_API_KEY');
-      if (apiKey.isEmpty) {
+      if (apiKey == null || apiKey.isEmpty) {
         throw Exception('Missing OPENAI_API_KEY in env.json');
       }
 
-      print('🔑 Using OpenAI key (first 8 chars): ${apiKey.substring(0, 8)}');
+      print('🔑 Using OpenAI key: ${apiKey.substring(0, apiKey.length > 8 ? 8 : apiKey.length)}');
 
       // Build system prompt with relevance guard
       final systemPrompt = _buildCoachingSystemPrompt(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:yspc/services/openai_client.dart';
 
@@ -31,6 +32,32 @@ class FirestoreService {
       return true; // Profile created
     }
     return false; // Already existed
+  }
+
+  Future<bool> isEmailRegistered(String email) async {
+    final cleanEmail = email.trim();
+    if (cleanEmail.isEmpty) return false;
+
+    try {
+      // Check Firestore users collection (lowercase & original casing)
+      final snapLower = await _db
+          .collection('users')
+          .where('email', isEqualTo: cleanEmail.toLowerCase())
+          .limit(1)
+          .get();
+      if (snapLower.docs.isNotEmpty) return true;
+
+      final snapOriginal = await _db
+          .collection('users')
+          .where('email', isEqualTo: cleanEmail)
+          .limit(1)
+          .get();
+      if (snapOriginal.docs.isNotEmpty) return true;
+    } catch (e) {
+      debugPrint('Firestore email query error: $e');
+    }
+
+    return false;
   }
 
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {

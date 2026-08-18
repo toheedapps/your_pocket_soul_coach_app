@@ -195,6 +195,7 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _nameController,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateName,
             decoration: authFieldDecoration(
               label: 'Full Name',
@@ -216,6 +217,7 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateEmail,
             decoration: authFieldDecoration(
               label: 'Email Address',
@@ -237,6 +239,7 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validatePassword,
             decoration: authFieldDecoration(
               label: 'Password',
@@ -266,6 +269,7 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _confirmPasswordController,
             obscureText: !_isConfirmPasswordVisible,
             textInputAction: TextInputAction.done,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateConfirmPassword,
             onFieldSubmitted: (_) => _handleSignUp(),
             decoration: authFieldDecoration(
