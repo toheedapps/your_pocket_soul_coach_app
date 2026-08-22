@@ -77,14 +77,16 @@ class _SignInFormState extends State<SignInForm> {
   }
 
   bool _isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email.trim());
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
       return 'Please enter your email address';
     }
-    if (!_isValidEmail(value)) {
+    if (!_isValidEmail(trimmed)) {
       return 'Please enter a valid email address';
     }
     return null;
@@ -101,6 +103,7 @@ class _SignInFormState extends State<SignInForm> {
   }
 
   Future<void> _handleSignIn() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       HapticFeedback.lightImpact();
       await _saveCredentials();
@@ -237,8 +240,7 @@ class _SignInFormState extends State<SignInForm> {
             width: double.infinity,
             height: 7.h,
             child: ElevatedButton(
-              onPressed:
-              _isFormValid && !widget.isLoading ? _handleSignIn : null,
+              onPressed: !widget.isLoading ? _handleSignIn : null,
               child: widget.isLoading
                   ? SizedBox(
                 width: 20,
