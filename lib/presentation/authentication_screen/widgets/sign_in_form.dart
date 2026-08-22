@@ -7,7 +7,7 @@ import 'input_decoration.dart';
 
 class SignInForm extends StatefulWidget {
   final Function(String email, String password, bool rememberMe)? onSignIn;
-  final VoidCallback? onForgotPassword;
+  final Function(String email)? onForgotPassword;
   final bool isLoading;
 
   const SignInForm({
@@ -77,14 +77,16 @@ class _SignInFormState extends State<SignInForm> {
   }
 
   bool _isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email.trim());
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
       return 'Please enter your email address';
     }
-    if (!_isValidEmail(value)) {
+    if (!_isValidEmail(trimmed)) {
       return 'Please enter a valid email address';
     }
     return null;
@@ -101,6 +103,7 @@ class _SignInFormState extends State<SignInForm> {
   }
 
   Future<void> _handleSignIn() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       HapticFeedback.lightImpact();
       await _saveCredentials();
@@ -143,6 +146,7 @@ class _SignInFormState extends State<SignInForm> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateEmail,
             decoration: authFieldDecoration(
               label: 'Email Address',
@@ -164,6 +168,7 @@ class _SignInFormState extends State<SignInForm> {
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
             textInputAction: TextInputAction.done,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validatePassword,
             onFieldSubmitted: (_) => _handleSignIn(),
             decoration: authFieldDecoration(
@@ -213,12 +218,15 @@ class _SignInFormState extends State<SignInForm> {
                 ],
               ),
               TextButton(
-                onPressed: widget.onForgotPassword,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  widget.onForgotPassword?.call(_emailController.text.trim());
+                },
                 child: Text(
-                  'I need help signing in',  // Updated text
+                  'Forgot Password?',
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w600,
                     color: AppTheme.lightTheme.colorScheme.primary,
                   ),
                 ),
@@ -232,8 +240,7 @@ class _SignInFormState extends State<SignInForm> {
             width: double.infinity,
             height: 7.h,
             child: ElevatedButton(
-              onPressed:
-              _isFormValid && !widget.isLoading ? _handleSignIn : null,
+              onPressed: !widget.isLoading ? _handleSignIn : null,
               child: widget.isLoading
                   ? SizedBox(
                 width: 20,

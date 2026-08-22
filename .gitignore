@@ -42,4 +42,23 @@ app.*.map.json
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
-/android/app/release
+# Secrets and Credentials
+assets/config/env.json
+assets/config/env.local.json
+*.p8
+*.pem
+*.pdf
+apns/
+error_logs/
+github_*.ps1
+
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/App.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+

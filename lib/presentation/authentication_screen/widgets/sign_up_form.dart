@@ -28,16 +28,6 @@ class _SignUpFormState extends State<SignUpForm> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _acceptTerms = false;
-  bool _isFormValid = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.addListener(_validateForm);
-    _emailController.addListener(_validateForm);
-    _passwordController.addListener(_validateForm);
-    _confirmPasswordController.addListener(_validateForm);
-  }
 
   @override
   void dispose() {
@@ -48,42 +38,28 @@ class _SignUpFormState extends State<SignUpForm> {
     super.dispose();
   }
 
-  void _validateForm() {
-    final isValid = _nameController.text.isNotEmpty &&
-        _emailController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty &&
-        _isValidEmail(_emailController.text) &&
-        _passwordController.text.length >= 6 &&
-        _passwordController.text == _confirmPasswordController.text &&
-        _acceptTerms;
-
-    if (_isFormValid != isValid) {
-      setState(() {
-        _isFormValid = isValid;
-      });
-    }
-  }
-
   bool _isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email.trim());
   }
 
   String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
       return 'Please enter your full name';
     }
-    if (value.length < 2) {
+    if (trimmed.length < 2) {
       return 'Name must be at least 2 characters';
     }
     return null;
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
       return 'Please enter your email address';
     }
-    if (!_isValidEmail(value)) {
+    if (!_isValidEmail(trimmed)) {
       return 'Please enter a valid email address';
     }
     return null;
@@ -110,29 +86,35 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   void _handleSignUp() {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (!_acceptTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Please accept the terms and conditions to continue',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w400),
-            ),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-        return;
-      }
-      HapticFeedback.lightImpact();
-      widget.onSignUp?.call(
-        _nameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
+    FocusScope.of(context).unfocus();
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
     }
+
+    if (!_acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please accept the Mental Health Disclaimer and Terms to continue.',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w400),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    HapticFeedback.lightImpact();
+    widget.onSignUp?.call(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
   }
 
   void _showTermsDialog() {
@@ -140,7 +122,7 @@ class _SignUpFormState extends State<SignUpForm> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'MENTAL HEALTH DISCLAIMER',  // Capitalized
+          'MENTAL HEALTH DISCLAIMER',
           style: GoogleFonts.inter(
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
@@ -150,7 +132,7 @@ class _SignUpFormState extends State<SignUpForm> {
           child: Text(
             'Your Soul Pocket Coach is a supportive wellness tool. '
                 'It is not a replacement for therapy or emergency mental health care. '
-                'If you are in danger or need immediate help, please contact local emergency services or a mental health professional.',  // Updated to match page 8
+                'If you are in danger or need immediate help, please contact local emergency services or a mental health professional.',
             style: GoogleFonts.inter(
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,
@@ -195,10 +177,11 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _nameController,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateName,
             decoration: authFieldDecoration(
               label: 'Full Name',
-              hint: 'Full Name',  // Updated for tone
+              hint: 'Full Name',
               prefixIcon: Padding(
                 padding: EdgeInsets.all(3.w),
                 child: CustomIconWidget(
@@ -216,10 +199,11 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateEmail,
             decoration: authFieldDecoration(
               label: 'Email Address',
-              hint: 'Email Address',  // Updated placeholder
+              hint: 'Email Address',
               prefixIcon: Padding(
                 padding: EdgeInsets.all(3.w),
                 child: CustomIconWidget(
@@ -237,10 +221,11 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
             textInputAction: TextInputAction.next,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validatePassword,
             decoration: authFieldDecoration(
               label: 'Password',
-              hint: 'Password',  // Updated placeholder
+              hint: 'Password',
               prefixIcon: Padding(
                 padding: EdgeInsets.all(3.w),
                 child: CustomIconWidget(
@@ -266,11 +251,12 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _confirmPasswordController,
             obscureText: !_isConfirmPasswordVisible,
             textInputAction: TextInputAction.done,
+            scrollPadding: EdgeInsets.only(bottom: 24.h),
             validator: _validateConfirmPassword,
             onFieldSubmitted: (_) => _handleSignUp(),
             decoration: authFieldDecoration(
               label: 'Confirm Password',
-              hint: 'Confirm Password',  // Updated for consistency
+              hint: 'Confirm Password',
               prefixIcon: Padding(
                 padding: EdgeInsets.all(3.w),
                 child: CustomIconWidget(
@@ -301,7 +287,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   HapticFeedback.lightImpact();
                   setState(() {
                     _acceptTerms = value ?? false;
-                    _validateForm();
                   });
                 },
               ),
@@ -311,7 +296,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     HapticFeedback.lightImpact();
                     setState(() {
                       _acceptTerms = !_acceptTerms;
-                      _validateForm();
                     });
                   },
                   child: Padding(
@@ -355,8 +339,7 @@ class _SignUpFormState extends State<SignUpForm> {
             width: double.infinity,
             height: 7.h,
             child: ElevatedButton(
-              onPressed:
-              _isFormValid && !widget.isLoading ? _handleSignUp : null,
+              onPressed: !widget.isLoading ? _handleSignUp : null,
               child: widget.isLoading
                   ? SizedBox(
                 width: 20,

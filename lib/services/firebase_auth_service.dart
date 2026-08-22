@@ -49,7 +49,9 @@ class FirebaseAuthService {
   // Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
-      await _googleSignIn.initialize();
+      await _googleSignIn.initialize(
+        serverClientId: '724306212346-m1q25e5pnegcetuogdnvi2tl1i39poj0.apps.googleusercontent.com',
+      );
 
       final GoogleSignInAccount googleUser =
       await _googleSignIn.authenticate();
@@ -68,6 +70,17 @@ class FirebaseAuthService {
       final User? user = userCredential.user;
 
       if (user != null) {
+        // Guarantee Firestore profile exists for Google Sign-In users
+        bool isNewUser = await FirestoreService().createUserProfile(
+          uid: user.uid,
+          email: user.email ?? '',
+          name: user.displayName,
+        );
+
+        if (isNewUser) {
+          await FirestoreService().startFreeTrial(user.uid);
+        }
+
         await _ensureDisplayNameExists(
           user,
           user.email ?? '',
@@ -116,7 +129,9 @@ class FirebaseAuthService {
       throw Exception('No user logged in');
     }
 
-    await _googleSignIn.initialize();
+    await _googleSignIn.initialize(
+      serverClientId: '724306212346-m1q25e5pnegcetuogdnvi2tl1i39poj0.apps.googleusercontent.com',
+    );
 
     final GoogleSignInAccount googleUser =
     await _googleSignIn.authenticate();

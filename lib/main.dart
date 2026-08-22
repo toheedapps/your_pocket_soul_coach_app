@@ -66,6 +66,7 @@
 // }
 // <DOCUMENT filename="main.dart">
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -91,10 +92,21 @@ FlutterLocalNotificationsPlugin();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await EnvLoader.load();
-  await OpenAIService.initialize();
+  // Load environment variables
+  try {
+    await EnvLoader.load();
+  } catch (e) {
+    debugPrint('⚠️ EnvLoader failed: $e');
+  }
 
-  // Custom error widget (keep yours)
+  // Initialize OpenAI service
+  try {
+    await OpenAIService.initialize();
+  } catch (e) {
+    debugPrint('⚠️ OpenAIService.initialize failed: $e');
+  }
+
+  // Custom error widget
   bool _hasShownError = false;
   ErrorWidget.builder = (FlutterErrorDetails details) {
     if (!_hasShownError) {
@@ -105,40 +117,62 @@ void main() async {
     return const SizedBox.shrink();
   };
 
-  // ←←← INITIALIZE FIREBASE
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Initialize Firebase (AppDelegate must NOT also call FirebaseApp.configure())
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    debugPrint('⚠️ Firebase.initializeApp failed: $e');
+  }
 
-  // ←←← FCM: Background handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Register FCM background handler
+  try {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  } catch (e) {
+    debugPrint('⚠️ FCM background handler registration failed: $e');
+  }
 
-  // ←←← Local notifications initialization (so notification shows when app is open)
-  const AndroidInitializationSettings androidInit =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
-  const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
-  const InitializationSettings initSettings =
-  InitializationSettings(android: androidInit, iOS: iosInit);
-  await flutterLocalNotificationsPlugin.initialize(initSettings);
+  // Initialize local notifications (Android only — iOS handled by FlutterAppDelegate)
+  try {
+    const AndroidInitializationSettings androidInit =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    const InitializationSettings initSettings =
+        InitializationSettings(android: androidInit, iOS: iosInit);
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
+  } catch (e) {
+    debugPrint('⚠️ Local notifications init failed: $e');
+  }
 
-  // ←←← FOREGROUND NOTIFICATION HANDLER (shows notification when app is open)
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    if (notification != null) {
-      flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'default_channel',
-            'General Notifications',
-            channelDescription: 'Notifications from Soul Pocket Coach',
-            importance: Importance.high,
-            priority: Priority.high,
+  // Listen for FCM foreground messages
+  try {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      if (notification != null && !defaultTargetPlatform.name.contains('iOS')) {
+        // Only show local notification banner on Android
+        // iOS handles this automatically via APNs
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'default_channel',
+              'General Notifications',
+              channelDescription: 'Notifications from Soul Pocket Coach',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
           ),
-        ),
-      );
-    }
-  });
+        );
+      }
+    });
+  } catch (e) {
+    debugPrint('⚠️ FCM foreground listener failed: $e');
+  }
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

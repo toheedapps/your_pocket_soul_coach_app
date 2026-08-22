@@ -21,8 +21,9 @@ class OpenAIService {
         : (defineKey.isNotEmpty ? defineKey : '');
 
     if (_apiKey.isEmpty) {
-      throw Exception(
-          'OPENAI_API_KEY must be provided via env.json or --dart-define');
+      // Don't throw here to avoid LateInitializationError on app launch.
+      // Requests will simply fail with 401 Unauthorized which is handled gracefully.
+      print('⚠️ Warning: OPENAI_API_KEY is missing!');
     }
 
     _dio = Dio(

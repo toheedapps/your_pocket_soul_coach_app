@@ -26,17 +26,34 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 
-	<!-- Firebase and Permissions Moved Here -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.724306212346-bjh7l8dhc91nq0c1p2t2c91sqip5i8h2</string>
+			</array>
+		</dict>
+	</array>
+	<!-- Firebase and Permissions -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We use microphone for voice-based AI coaching.</string>
+	<string>We use the microphone for voice-based AI coaching sessions.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We use the camera to let you upload a profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We access your photo library to let you upload a profile photo.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<!-- End of Moved Section -->
+	<!-- End Permissions -->
 
 	<key>UIApplicationSceneManifest</key>
 	<dict>

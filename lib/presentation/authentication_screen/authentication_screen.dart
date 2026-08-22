@@ -8,6 +8,7 @@ import 'package:yspc/services/firebase_auth_service.dart' as fb_auth;
 import '../../core/app_export.dart';
 import './widgets/app_logo_section.dart';
 import './widgets/auth_tab_bar.dart';
+import './widgets/forgot_password_sheet.dart';
 import './widgets/sign_in_form.dart';
 import './widgets/sign_up_form.dart';
 import './widgets/social_login_section.dart';
@@ -35,6 +36,11 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
       final rememberMe = prefs.getBool('remember_me') ?? false;
@@ -74,7 +80,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
 
   void _handleTabChange(int index) {
     HapticFeedback.lightImpact();
-    _tabController.animateTo(index);
+    setState(() {
+      _tabController.index = index;
+    });
   }
   Future<void> _postSignInRedirect(User user) async {
     final creation = user.metadata.creationTime;
@@ -115,12 +123,17 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
           email: user.email ?? '',
           name: user.displayName,
         );
-        await requestNotificationPermission();
-        String? token = await FirebaseMessaging.instance.getToken();
-        print('════════════════════════════════');
-        print('YOUR FCM TOKEN:');
-        print(token);
-        print('════════════════════════════════');// ← ADD THIS LINE
+        
+        try {
+          await requestNotificationPermission();
+          String? token = await FirebaseMessaging.instance.getToken();
+          print('════════════════════════════════');
+          print('YOUR FCM TOKEN:');
+          print(token);
+          print('════════════════════════════════');
+        } catch (fcmError) {
+          print('FCM setup skipped/failed: $fcmError');
+        }
 
         final profile = await FirestoreService().getUserProfile(user.uid);
         if (profile?['is_onboarded'] == true) {
@@ -131,6 +144,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
       }
     } on FirebaseAuthException catch (e) {
       _showErrorMessage(e.message ?? 'Sign in failed.');
+    } catch (e) {
+      _showErrorMessage('An error occurred: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -141,7 +156,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
   Future<void> _handleSignUp(String name, String email, String password) async {
     setState(() => _isLoading = true);
     try {
-      final user = await _authService.signUpWithEmail(email, password);
+      final user = await _authService.signUpWithEmail(email, password, name: name);
       if (user != null && mounted) {
         await FirestoreService().createUserProfile(
           uid: user.uid,
@@ -171,7 +186,17 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
           email: user.email ?? '',
           name: user.displayName,
         );
-        await requestNotificationPermission();   // ← ADD THIS LINE
+        
+        try {
+          await requestNotificationPermission();
+          String? token = await FirebaseMessaging.instance.getToken();
+          print('════════════════════════════════');
+          print('YOUR FCM TOKEN:');
+          print(token);
+          print('════════════════════════════════');
+        } catch (fcmError) {
+          print('FCM setup skipped/failed: $fcmError');
+        }
 
         final profile = await FirestoreService().getUserProfile(user.uid);
         if (profile?['is_onboarded'] == true) {
@@ -208,72 +233,17 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
     }
   }
 
-  void _handleForgotPassword() {
+  void _handleForgotPassword([String initialEmail = '']) {
     HapticFeedback.lightImpact();
-
-    final TextEditingController emailController = TextEditingController();
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Reset Password',
-          style: GoogleFonts.inter(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Enter your email address and we’ll send you a link to reset your password.',
-              style: GoogleFonts.inter(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                height: 1.5,
-              ),
-            ),
-            SizedBox(height: 4.h),
-            TextFormField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email Address',
-                hintText: 'Enter your email',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final email = emailController.text.trim();
-              Navigator.pop(context);
-
-              if (email.isEmpty) {
-                _showErrorMessage('Please enter your email.');
-                return;
-              }
-
-              try {
-                await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-                _showSuccessMessage('Password reset email sent successfully.');
-              } on FirebaseAuthException catch (e) {
-                _showErrorMessage(e.message ?? 'Password reset failed.');
-              }
-            },
-            child: const Text('Send Link'),
-          ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ForgotPasswordSheet(
+        initialEmail: initialEmail,
+        onNavigateToSignUp: () {
+          _tabController.animateTo(1);
+        },
       ),
     );
   }
@@ -345,73 +315,65 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          physics: const ClampingScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 2.h),
 
-                  // App Logo Section
-                  const AppLogoSection(),
-                  SizedBox(height: 4.h),
+                // App Logo Section
+                const AppLogoSection(),
+                SizedBox(height: 3.h),
 
-                  // Tab Bar
-                  AuthTabBar(
-                    tabController: _tabController,
-                    onTabChanged: _handleTabChange,
-                  ),
-                  SizedBox(height: 3.h),
+                // Tab Bar
+                AuthTabBar(
+                  tabController: _tabController,
+                  onTabChanged: _handleTabChange,
+                ),
+                SizedBox(height: 2.5.h),
 
-                  // Tab Bar View (height slightly reduced to remove extra gap)
-                  SizedBox(
-                    height: _tabController.index == 0 ? 42.h : 55.h,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        // Sign In Form
-                        SignInForm(
+                // Active Form (rendered with natural intrinsic height, no scroll blocking)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: _tabController.index == 0
+                      ? SignInForm(
+                          key: const ValueKey('sign_in_form'),
                           onSignIn: (email, password, rememberMe) {
                             _handleSignIn(email, password, rememberMe);
                           },
                           onForgotPassword: _handleForgotPassword,
                           isLoading: _isLoading,
+                        )
+                      : SignUpForm(
+                          key: const ValueKey('sign_up_form'),
+                          onSignUp: _handleSignUp,
+                          isLoading: _isLoading,
                         ),
+                ),
 
-                        // Sign Up Form
-                        SingleChildScrollView(
-                          child: SignUpForm(
-                            onSignUp: _handleSignUp,
-                            isLoading: _isLoading,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                SizedBox(height: 2.h),
 
-                  // Reduced spacing before Google login
-                  SizedBox(height: 1.h),
+                // Social Login Section
+                SocialLoginSection(
+                  onGoogleSignIn: _handleGoogleSignIn,
+                  isLoading: _isLoading,
+                ),
 
-                  // Social Login Section
-                  SocialLoginSection(
-                    onGoogleSignIn: _handleGoogleSignIn,
-
-                    isLoading: _isLoading,
-                  ),
-
-                ],
-              ),
+                SizedBox(height: 4.h),
+              ],
             ),
           ),
         ),

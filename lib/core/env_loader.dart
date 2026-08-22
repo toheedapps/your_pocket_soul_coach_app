@@ -9,9 +9,9 @@ class EnvLoader {
     _env = jsonDecode(jsonString);
   }
 
-  static String get(String key) {
+  static String? get(String key) {
     if (_env == null) {
-      throw Exception("Environment not loaded. Call EnvLoader.load() first.");
+      return null;
     }
     return _env![key];
   }
